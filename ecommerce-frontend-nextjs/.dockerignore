@@ -1,0 +1,34 @@
+# Dependências locais (serão reinstaladas no container)
+node_modules
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+
+# Builds locais (recriados no container)
+.next
+out
+dist
+.cache
+
+# Configurações e segredos locais
+.env
+.env.* 
+*.local
+
+# Logs
+logs
+*.log
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Editor/IDE
+.vscode
+.idea
+.DS_Store
+
+# Docker
+Dockerfile*
+docker-compose*
