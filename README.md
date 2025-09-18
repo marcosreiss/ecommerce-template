@@ -1,4 +1,4 @@
-# Ecommerce Boilerplate
+# Ecommerce Template
 
 🚀 Boilerplate de e-commerce utilizando **Strapi (backend)**, **Next.js
 (frontend)** e **Postgres (banco de dados)**, rodando em **Docker
