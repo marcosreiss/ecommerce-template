@@ -31,10 +31,17 @@ COPY package*.json ./
 # Instala SOMENTE dependências de produção
 RUN npm ci --omit=dev
 
-# Copia build e código da etapa anterior
-COPY --from=builder /app ./
+# Copia apenas build e código necessário
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/config ./config
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/.env* ./ 
 
-# Define usuário não-root para maior segurança
+# Garante permissões para o usuário node
+RUN chown -R node:node /app
+
+# Define usuário não-root
 USER node
 
 # Porta padrão do Strapi
