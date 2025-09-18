@@ -1,24 +1,44 @@
-# Imagem base LTS mais recente
-FROM node:20-alpine
+# =========================
+# Etapa 1: Build
+# =========================
+FROM node:20-alpine AS builder
 
-# Diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json e instalar dependências com cache otimizado
+# Copia dependências
 COPY package*.json ./
-RUN npm ci --omit=dev
 
-# Copiar código da aplicação
+# Instala TODAS as dependências (inclui dev, necessárias para build)
+RUN npm ci
+
+# Copia o restante do código
 COPY . .
 
-# Build do Strapi
+# Gera build do Strapi
 RUN npm run build
 
-# Usar usuário não-root
+
+# =========================
+# Etapa 2: Produção
+# =========================
+FROM node:20-alpine AS production
+
+WORKDIR /app
+
+# Copia apenas os arquivos de dependência
+COPY package*.json ./
+
+# Instala SOMENTE dependências de produção
+RUN npm ci --omit=dev
+
+# Copia build e código da etapa anterior
+COPY --from=builder /app ./
+
+# Define usuário não-root para maior segurança
 USER node
 
-# Porta padrão
+# Porta padrão do Strapi
 EXPOSE 1337
 
-# Comando de inicialização
+# Comando final
 CMD ["npm", "run", "start"]

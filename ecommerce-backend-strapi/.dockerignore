@@ -1,0 +1,32 @@
+# Dependências (serão reinstaladas no container)
+node_modules
+npm-debug.log
+yarn.lock
+
+# Build gerado pelo Strapi (recriado no container)
+build
+.cache
+
+# Configurações e segredos locais
+.env
+.env.* 
+*.local
+
+# Git e ferramentas de versionamento
+.git
+.gitignore
+.gitattributes
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor/IDE
+.vscode
+.idea
+.DS_Store
+
+# Dockerfile backups (se existirem)
+Dockerfile*
+docker-compose*
