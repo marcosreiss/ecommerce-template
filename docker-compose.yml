@@ -5,14 +5,15 @@ services:
     image: postgres:15-alpine
     container_name: ecommerce_postgres
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: strapi
-      POSTGRES_PASSWORD: strapi
-      POSTGRES_DB: strapi
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    networks:
+      - backend_net
+    # Em produção, comente as portas para não expor o DB publicamente
+    # ports:
+    #   - "5432:5432"
 
   backend:
     build:
@@ -20,17 +21,8 @@ services:
       dockerfile: Dockerfile
     container_name: ecommerce_backend
     restart: unless-stopped
-    environment:
-      DATABASE_CLIENT: postgres
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: strapi
-      DATABASE_USERNAME: strapi
-      DATABASE_PASSWORD: strapi
-      APP_KEYS: "key1,key2"
-      API_TOKEN_SALT: "random_salt"
-      ADMIN_JWT_SECRET: "random_secret"
-      JWT_SECRET: "random_secret"
+    env_file:
+      - .env
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -38,6 +30,9 @@ services:
       - "1337:1337"
     depends_on:
       - postgres
+    networks:
+      - backend_net
+      - frontend_net
 
   frontend:
     build:
@@ -45,8 +40,8 @@ services:
       dockerfile: Dockerfile
     container_name: ecommerce_frontend
     restart: unless-stopped
-    environment:
-      NEXT_PUBLIC_API_URL: "http://localhost:1337"
+    env_file:
+      - .env
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -54,6 +49,12 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    networks:
+      - frontend_net
 
 volumes:
   postgres_data:
+
+networks:
+  backend_net:
+  frontend_net:
