@@ -93,7 +93,7 @@ docker-compose.override.yaml
 docker-compose.local.yml
 docker-compose.local.yaml
 *.env
-*.env.*
+*.env
 .envrc
 node_modules/
 npm-debug.log*
