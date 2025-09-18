@@ -1,21 +1,24 @@
-# Imagem base
-FROM node:18-alpine
+# Imagem base LTS mais recente
+FROM node:20-alpine
 
 # Diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json e instalar dependências
+# Copiar package.json e instalar dependências com cache otimizado
 COPY package*.json ./
-RUN npm install
+RUN npm ci --omit=dev
 
 # Copiar código da aplicação
 COPY . .
 
-# Build do Strapi (gera a pasta build)
+# Build do Strapi
 RUN npm run build
 
-# Porta do Strapi
+# Usar usuário não-root
+USER node
+
+# Porta padrão
 EXPOSE 1337
 
-# Comando para iniciar
+# Comando de inicialização
 CMD ["npm", "run", "start"]
