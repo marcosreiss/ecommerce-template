@@ -10,6 +10,11 @@ RUN npm ci
 
 # Copiar restante do código e gerar build
 COPY . .
+
+# Garantir que o TypeScript esteja presente no build
+RUN npm install --save-dev typescript
+
+# Gerar build
 RUN npm run build
 
 # =========================
