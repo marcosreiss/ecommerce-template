@@ -32,7 +32,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 # Copia apenas build e código necessário
-COPY --from=builder /app/build ./build
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/config ./config
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/package.json ./package.json
