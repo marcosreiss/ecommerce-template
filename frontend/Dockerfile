@@ -1,40 +1,55 @@
 # =========================
-# Etapa 1: build
+# Etapa 1: dependências
+# =========================
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# =========================
+# Etapa 2: build
 # =========================
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copiar dependências e instalar todas (inclui dev)
-COPY package*.json ./
-RUN npm ci
+# Copia dependências do stage anterior
+COPY --from=deps /app/node_modules ./node_modules
 
-# Copiar restante do código e gerar build
-COPY . .
+# Copia todo o projeto
+COPY . .    
 
-# Garantir que o TypeScript esteja presente no build
-RUN npm install --save-dev typescript
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Gerar build
+# Gera build standalone
 RUN npm run build
 
 # =========================
-# Etapa 2: produção
+# Etapa 3: produção
 # =========================
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Copiar package.json e instalar apenas deps de produção
-COPY package*.json ./
-RUN npm ci --omit=dev
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copiar artefatos de build e arquivos públicos
-COPY --from=builder /app/.next ./.next
+# Cria usuário não-root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copia arquivos necessários para rodar
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./next.config.ts
-COPY --from=builder /app/package.json ./package.json
+RUN mkdir .next && chown nextjs:nodejs .next
 
-# Usar usuário não-root
-USER node
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
 
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Standalone sobe via server.js
+CMD ["node", "server.js"]
