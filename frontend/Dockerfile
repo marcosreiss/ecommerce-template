@@ -44,6 +44,7 @@ RUN mkdir .next && chown nextjs:nodejs .next
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --chown=nextjs:nodejs public ./public
 
 USER nextjs
 
@@ -52,4 +53,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Standalone sobe via server.js
-CMD ["node", "server.js"]
+CMD ["node", ".next/standalone/server.js"]
